@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Windows.Media;
+using Elinor.Views;
 
 namespace Elinor
 {
