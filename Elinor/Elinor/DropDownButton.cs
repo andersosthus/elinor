@@ -7,9 +7,9 @@ namespace Elinor
     internal class DropDownButton : ToggleButton
     {
         public static readonly DependencyProperty DropDownProperty =
-            DependencyProperty.Register("DropDown", typeof (ContextMenu), 
-                                        typeof (DropDownButton),
-                                        new UIPropertyMetadata(null));
+            DependencyProperty.Register("DropDown", typeof (ContextMenu),
+                typeof (DropDownButton),
+                new UIPropertyMetadata(null));
 
         public ContextMenu DropDown
         {

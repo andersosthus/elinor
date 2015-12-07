@@ -2,8 +2,6 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
-using eZet.EveLib.Core;
-using eZet.EveLib.Core.Cache;
 using eZet.EveLib.EveXmlModule;
 
 namespace Elinor
@@ -13,8 +11,8 @@ namespace Elinor
     /// </summary>
     public partial class ApiImportWindow
     {
-        public Settings Settings = new Settings();
         private bool? _getStandingAccess;
+        public Settings Settings = new Settings();
 
         public ApiImportWindow()
         {
@@ -38,14 +36,14 @@ namespace Elinor
                 var api = EveXml.CreateApiKey(keyId, vcode);
                 api.Init();
                 var characters = api.GetCharacterList();
-                
+
                 //var info = new APIKeyInfo(keyid.ToString(CultureInfo.InvariantCulture), vcode);
                 //info.Query();
 
                 if (characters.Result.Characters.Count == 0)
                 {
                     MessageBox.Show("No characters for this API information.\nPlease check you API information",
-                                    "No characters found", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        "No characters found", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 else
                 {
@@ -55,12 +53,12 @@ namespace Elinor
                     foreach (var chr in characters.Result.Characters)
                     {
                         var chara = new CharWrapper
-                                        {
-                                            KeyId = keyId,
-                                            VCode = vcode,
-                                            Charname = chr.CharacterName,
-                                            CharId = chr.CharacterId
-                                        };
+                        {
+                            KeyId = keyId,
+                            VCode = vcode,
+                            Charname = chr.CharacterName,
+                            CharId = chr.CharacterId
+                        };
 
                         cbChars.Items.Add(chara);
                         cbChars.SelectedIndex = 0;
@@ -74,7 +72,7 @@ namespace Elinor
             catch (FormatException)
             {
                 MessageBox.Show("Key ID must be a number", "Invalid Key ID", MessageBoxButton.OK,
-                                MessageBoxImage.Warning);
+                    MessageBoxImage.Warning);
             }
         }
 
@@ -97,48 +95,47 @@ namespace Elinor
             var worker = new BackgroundWorker();
             _getStandingAccess = true;
             worker.RunWorkerCompleted += delegate
-                                             {
-                                                 if (_getStandingAccess == true) DialogResult = true;
-                                                 else Dispatcher.Invoke(new Action(Close));
-                                             };
+            {
+                if (_getStandingAccess == true) DialogResult = true;
+                else Dispatcher.Invoke(new Action(Close));
+            };
             worker.DoWork += delegate
             {
-
                 var character = EveXml.CreateCharacter(chara.KeyId, chara.VCode, chara.CharId).Init();
                 var charSheet = character.GetCharacterSheet().Result;
-                
-                                     
-                                     foreach (var skill in charSheet.Skills)
-                                     {
-                                         if (skill.TypeId == 3446) //"Broker Relations"
-                                             Settings.BrokerRelations = skill.Level;
-                                         if (skill.TypeId == 16622) //"Accounting" 
-                                             Settings.Accounting = skill.Level;
-                                     }
 
-                                     Dispatcher.Invoke(new Action(delegate
-                                                                      {
-                                                                          var aisfw =
-                                                                              new ApiImportSelectFactionWindow(chara)
-                                                                                  {
-                                                                                      Topmost = true,
-                                                                                      Top = Top + 10,
-                                                                                      Left = Left + 10,
-                                                                                  };
-                                                                          _getStandingAccess = aisfw.ShowDialog();
-                                                                          if (_getStandingAccess == true)
-                                                                          {
-                                                                              Settings.CorpStanding = aisfw.Corp;
-                                                                              Settings.FactionStanding = aisfw.Faction;
-                                                                          }
-                                                                          else
-                                                                          {
-                                                                              _getStandingAccess = false;
-                                                                          }
-                                                                      }));
 
-                                     Settings.ProfileName = chara.Charname;
-                                 };
+                foreach (var skill in charSheet.Skills)
+                {
+                    if (skill.TypeId == 3446) //"Broker Relations"
+                        Settings.BrokerRelations = skill.Level;
+                    if (skill.TypeId == 16622) //"Accounting" 
+                        Settings.Accounting = skill.Level;
+                }
+
+                Dispatcher.Invoke(new Action(delegate
+                {
+                    var aisfw =
+                        new ApiImportSelectFactionWindow(chara)
+                        {
+                            Topmost = true,
+                            Top = Top + 10,
+                            Left = Left + 10,
+                        };
+                    _getStandingAccess = aisfw.ShowDialog();
+                    if (_getStandingAccess == true)
+                    {
+                        Settings.CorpStanding = aisfw.Corp;
+                        Settings.FactionStanding = aisfw.Faction;
+                    }
+                    else
+                    {
+                        _getStandingAccess = false;
+                    }
+                }));
+
+                Settings.ProfileName = chara.Charname;
+            };
 
             worker.RunWorkerAsync();
         }

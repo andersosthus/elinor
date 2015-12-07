@@ -11,12 +11,12 @@ namespace Elinor
     /// </summary>
     public partial class ProfileNameWindow
     {
-        internal string ProfileName { get; private set; }
-
         public ProfileNameWindow()
         {
             InitializeComponent();
         }
+
+        internal string ProfileName { get; private set; }
 
         private void BtnOkClick(object sender, RoutedEventArgs e)
         {
@@ -35,13 +35,13 @@ namespace Elinor
             }
             else
             {
-                var sInvalid = invalidFileNameChars.Where(invalidFileNameChar => 
-                    !char.IsControl(invalidFileNameChar)).Aggregate("", (current, invalidFileNameChar) 
+                var sInvalid = invalidFileNameChars.Where(invalidFileNameChar =>
+                    !char.IsControl(invalidFileNameChar)).Aggregate("", (current, invalidFileNameChar)
                         => current + (invalidFileNameChar + " "));
 
                 MessageBox.Show(string.Format("Profile name may not contain\n{0}", sInvalid),
-                                "Invalid profile name",
-                                MessageBoxButton.OK, MessageBoxImage.Warning);
+                    "Invalid profile name",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -62,8 +62,8 @@ namespace Elinor
 
         private void WindowKeyDown(object sender, KeyEventArgs e)
         {
-            if(e.Key == Key.Escape) Close();
-            if(e.Key == Key.Enter) BtnOkClick(this, null);
+            if (e.Key == Key.Escape) Close();
+            if (e.Key == Key.Enter) BtnOkClick(this, null);
         }
     }
 }

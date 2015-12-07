@@ -2,7 +2,7 @@
 
 namespace Elinor
 {
-    class CacheTools
+    internal class CacheTools
     {
         internal static void ClearMarketLogs(DirectoryInfo logdir)
         {
@@ -23,9 +23,9 @@ namespace Elinor
                     {
                         File.Delete(file);
                     }
-                    // ReSharper disable EmptyGeneralCatchClause
+                        // ReSharper disable EmptyGeneralCatchClause
                     catch //no fucks given
-                    // ReSharper restore EmptyGeneralCatchClause
+                        // ReSharper restore EmptyGeneralCatchClause
                     {
                     }
                 }

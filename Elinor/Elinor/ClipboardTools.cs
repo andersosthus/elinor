@@ -20,8 +20,8 @@ namespace Elinor
             if (settings.AdvancedStepSettings)
             {
                 result -= (result*settings.SellPercentage > settings.SellThreshold)
-                              ? settings.SellThreshold
-                              : settings.SellPercentage*result;
+                    ? settings.SellThreshold
+                    : settings.SellPercentage*result;
             }
             else
             {
@@ -40,8 +40,8 @@ namespace Elinor
             if (settings.AdvancedStepSettings)
             {
                 result += result*settings.BuyPercentage > settings.BuyThreshold
-                              ? settings.BuyThreshold
-                              : settings.BuyPercentage*result;
+                    ? settings.BuyThreshold
+                    : settings.BuyPercentage*result;
             }
             else
             {

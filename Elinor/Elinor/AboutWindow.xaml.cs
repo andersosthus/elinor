@@ -47,10 +47,10 @@ namespace Elinor
         private TextBlock CreateUnderlinedTextBlock(string text)
         {
             var myUnderline = new TextDecoration
-                                  {
-                                      Pen = new Pen(Brushes.Blue, 1),
-                                      PenThicknessUnit = TextDecorationUnit.FontRecommended
-                                  };
+            {
+                Pen = new Pen(Brushes.Blue, 1),
+                PenThicknessUnit = TextDecorationUnit.FontRecommended
+            };
             var myCollection = new TextDecorationCollection {myUnderline};
             var blockHead = new TextBlock {TextDecorations = myCollection, Text = text};
             return blockHead;
@@ -62,25 +62,25 @@ namespace Elinor
             var myUnderLine = new TextDecoration();
 
             var gy = new Pen
-                         {
-                             Brush =
-                                 new LinearGradientBrush(Colors.Green, Colors.Yellow, new Point(0, 0.5),
-                                                         new Point(1, 0.5)) {Opacity = 0.5},
-                             Thickness = .75,
-                             DashStyle = DashStyles.DashDotDot
-                         };
+            {
+                Brush =
+                    new LinearGradientBrush(Colors.Green, Colors.Yellow, new Point(0, 0.5),
+                        new Point(1, 0.5)) {Opacity = 0.5},
+                Thickness = .75,
+                DashStyle = DashStyles.DashDotDot
+            };
             myBaseLine.Pen = gy;
             myBaseLine.PenThicknessUnit = TextDecorationUnit.FontRecommended;
             myBaseLine.Location = TextDecorationLocation.OverLine;
 
             var yr = new Pen
-                         {
-                             Brush =
-                                 new LinearGradientBrush(Colors.Yellow, Colors.Red, new Point(0, 0.5), new Point(1, 0.5))
-                                     {Opacity = 0.5},
-                             Thickness = .75,
-                             DashStyle = DashStyles.DashDotDot
-                         };
+            {
+                Brush =
+                    new LinearGradientBrush(Colors.Yellow, Colors.Red, new Point(0, 0.5), new Point(1, 0.5))
+                    {Opacity = 0.5},
+                Thickness = .75,
+                DashStyle = DashStyles.DashDotDot
+            };
             myUnderLine.Pen = yr;
             myUnderLine.PenThicknessUnit = TextDecorationUnit.FontRecommended;
 

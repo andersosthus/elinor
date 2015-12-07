@@ -10,9 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using eZet.EveLib.Core.Cache;
 using eZet.EveLib.EveXmlModule;
-using eZet.EveLib.EveXmlModule.Models.Misc;
 
 namespace Elinor
 {
@@ -21,8 +19,6 @@ namespace Elinor
     /// </summary>
     public partial class MainWindow
     {
-        internal Settings Settings { get; set; }
-
         private readonly FileSystemWatcher _fileSystemWatcher = new FileSystemWatcher();
 
         private readonly DirectoryInfo _logdir =
@@ -33,7 +29,6 @@ namespace Elinor
         private bool _cacheCleared;
         private bool _closePending;
         private FileSystemEventArgs _lastEvent;
-
         private double _sell;
         private long _typeId;
 
@@ -74,7 +69,8 @@ namespace Elinor
                 SetWatcherAndStuff();
             }
         }
-        
+
+        internal Settings Settings { get; set; }
 
         private void SetWatcherAndStuff()
         {
@@ -84,10 +80,7 @@ namespace Elinor
                 _profdir.Create();
 
             var init = new BackgroundWorker();
-            init.DoWork += (sender, args) =>
-            {
-                var status = EveXml.Eve.GetServerStatus().Result;
-                               };
+            init.DoWork += (sender, args) => { var status = EveXml.Eve.GetServerStatus().Result; };
             init.RunWorkerAsync();
 
             _fileSystemWatcher.Path = _logdir.FullName;
@@ -107,24 +100,24 @@ namespace Elinor
 
 
             IOrderedEnumerable<List<string>> sell = from List<string> row in table
-                                                    where row[7] == "False" && row[13] == "0"
-                                                    orderby
-                                                        double.Parse(row[0], CultureInfo.InvariantCulture) ascending
-                                                    select row;
+                where row[7] == "False" && row[13] == "0"
+                orderby
+                    double.Parse(row[0], CultureInfo.InvariantCulture) ascending
+                select row;
             string sss = sell.Any() ? sell.ElementAt(0)[0] : "-1.0";
             _sell = double.Parse(sss, CultureInfo.InvariantCulture);
 
             IOrderedEnumerable<List<string>> buy = from List<string> row in table
-                                                   where row[7] == "True" && row[13] == "0"
-                                                   orderby
-                                                       double.Parse(row[0], CultureInfo.InvariantCulture) descending
-                                                   select row;
+                where row[7] == "True" && row[13] == "0"
+                orderby
+                    double.Parse(row[0], CultureInfo.InvariantCulture) descending
+                select row;
             string bbb = buy.Any() ? buy.ElementAt(0)[0] : "-1.0";
             _buy = double.Parse(bbb, CultureInfo.InvariantCulture);
 
             IEnumerable<List<string>> aRow = from List<string> row in table
-                                             where row[13] == "0"
-                                             select row;
+                where row[13] == "0"
+                select row;
 
             foreach (var list in aRow)
             {
@@ -138,71 +131,71 @@ namespace Elinor
             {
                 var item = EveXml.Eve.GetTypeName(_typeId).Result;
 
-                                          Dispatcher.Invoke(new Action(delegate
-                                                                           {
-                                                                               if (item.Types.Count > 0)
-                                                                               {
-                                                                                   var type =
-                                                                                       item.Types[0];
-                                                                                   lblItemName.Content = type.TypeName;
-                                                                                   lblItemName.ToolTip = type.TypeName;
-                                                                               }
-                                                                               else
-                                                                               {
-                                                                                   lblItemName.Content = "Unknown";
-                                                                                   lblItemName.ToolTip =
-                                                                                       "Product not found";
-                                                                               }
-                                                                           }));
-                                      };
+                Dispatcher.Invoke(new Action(delegate
+                {
+                    if (item.Types.Count > 0)
+                    {
+                        var type =
+                            item.Types[0];
+                        lblItemName.Content = type.TypeName;
+                        lblItemName.ToolTip = type.TypeName;
+                    }
+                    else
+                    {
+                        lblItemName.Content = "Unknown";
+                        lblItemName.ToolTip =
+                            "Product not found";
+                    }
+                }));
+            };
             setItemName.RunWorkerAsync();
 
             var getVolumes = new BackgroundWorker();
             getVolumes.DoWork += (sender, args) =>
-                                     {
-                                         var volumes = new Dictionary<string, long>();
-                                         if (_typeId > 0)
-                                         {
-                                             volumes = VolumeFetcher.GetVolumes(table);
-                                         }
+            {
+                var volumes = new Dictionary<string, long>();
+                if (_typeId > 0)
+                {
+                    volumes = VolumeFetcher.GetVolumes(table);
+                }
 
 
-                                         Dispatcher.Invoke(new Action(delegate
-                                                                          {
-                                                                              if (volumes.Count > 0)
-                                                                              {
-                                                                                  long i, j;
-                                                                                  if (
-                                                                                      volumes.TryGetValue("sellvol",
-                                                                                                          out i) &&
-                                                                                      volumes.TryGetValue("sellmov",
-                                                                                                          out j))
-                                                                                      lblSellvols.Content =
-                                                                                          string.Format(
-                                                                                              "{0:n0}/{1:n0}", i, j);
+                Dispatcher.Invoke(new Action(delegate
+                {
+                    if (volumes.Count > 0)
+                    {
+                        long i, j;
+                        if (
+                            volumes.TryGetValue("sellvol",
+                                out i) &&
+                            volumes.TryGetValue("sellmov",
+                                out j))
+                            lblSellvols.Content =
+                                string.Format(
+                                    "{0:n0}/{1:n0}", i, j);
 
-                                                                                  if (
-                                                                                      volumes.TryGetValue("buyvol",
-                                                                                                          out i) &&
-                                                                                      volumes.TryGetValue("buymov",
-                                                                                                          out j))
-                                                                                      lblBuyvols.Content =
-                                                                                          string.Format(
-                                                                                              "{0:n0}/{1:n0}", i, j);
-                                                                              }
-                                                                          }));
-                                     };
+                        if (
+                            volumes.TryGetValue("buyvol",
+                                out i) &&
+                            volumes.TryGetValue("buymov",
+                                out j))
+                            lblBuyvols.Content =
+                                string.Format(
+                                    "{0:n0}/{1:n0}", i, j);
+                    }
+                }));
+            };
             getVolumes.RunWorkerAsync();
 
             Dispatcher.Invoke(new Action(delegate
-                                             {
-                                                 lblSell.Content = _sell >= 0
-                                                                       ? String.Format("{0:n} ISK", _sell)
-                                                                       : "No orders in range";
-                                                 lblBuy.Content = _buy >= 0
-                                                                      ? String.Format("{0:n} ISK", _buy)
-                                                                      : "No orders in range";
-                                             }));
+            {
+                lblSell.Content = _sell >= 0
+                    ? String.Format("{0:n} ISK", _sell)
+                    : "No orders in range";
+                lblBuy.Content = _buy >= 0
+                    ? String.Format("{0:n} ISK", _buy)
+                    : "No orders in range";
+            }));
 
             var cdt = new CalculateDataThread(_sell, _buy, this);
             var calc = new Thread(cdt.Run);
@@ -212,21 +205,21 @@ namespace Elinor
         private void FileSystemWatcherOnCreated(object sender, FileSystemEventArgs fileSystemEventArgs)
         {
             Dispatcher.Invoke(new Action(delegate
-                                             {
-                                                 lblItemName.Content = "Fetching...";
-                                                 lblItemName.ToolTip = string.Empty;
+            {
+                lblItemName.Content = "Fetching...";
+                lblItemName.ToolTip = string.Empty;
 
-                                                 if (cbAutoCopy.IsChecked != null && (bool) cbAutoCopy.IsChecked)
-                                                 {
-                                                     var img = new BitmapImage();
-                                                     img.BeginInit();
-                                                     img.UriSource =
-                                                         new Uri(
-                                                             "pack://application:,,,/Elinor;component/Images/38_16_195.png");
-                                                     img.EndInit();
-                                                     imgCopyStatus.Source = img;
-                                                 }
-                                             }));
+                if (cbAutoCopy.IsChecked != null && (bool) cbAutoCopy.IsChecked)
+                {
+                    var img = new BitmapImage();
+                    img.BeginInit();
+                    img.UriSource =
+                        new Uri(
+                            "pack://application:,,,/Elinor;component/Images/38_16_195.png");
+                    img.EndInit();
+                    imgCopyStatus.Source = img;
+                }
+            }));
 
             _lastEvent = fileSystemEventArgs;
             while (MiscTools.IsFileLocked(new FileInfo(fileSystemEventArgs.FullPath))) Thread.Sleep(25);
@@ -237,33 +230,33 @@ namespace Elinor
             }
 
             Dispatcher.Invoke(new Action(delegate
-                                             {
-                                                 if (cbAutoCopy.IsChecked != null && (bool) cbAutoCopy.IsChecked)
-                                                 {
-                                                     bool isSell = rbSell.IsChecked != null && (bool) rbSell.IsChecked;
+            {
+                if (cbAutoCopy.IsChecked != null && (bool) cbAutoCopy.IsChecked)
+                {
+                    bool isSell = rbSell.IsChecked != null && (bool) rbSell.IsChecked;
 
-                                                     if (rbSell.IsChecked != null && (bool) rbSell.IsChecked)
-                                                         ClipboardTools.SetClipboardWrapper(
-                                                             ClipboardTools.GetSellPrice(_sell, Settings));
-                                                     else if (rbBuy.IsChecked != null && (bool) rbBuy.IsChecked)
-                                                         ClipboardTools.SetClipboardWrapper(
-                                                             ClipboardTools.GetBuyPrice(_buy, Settings));
+                    if (rbSell.IsChecked != null && (bool) rbSell.IsChecked)
+                        ClipboardTools.SetClipboardWrapper(
+                            ClipboardTools.GetSellPrice(_sell, Settings));
+                    else if (rbBuy.IsChecked != null && (bool) rbBuy.IsChecked)
+                        ClipboardTools.SetClipboardWrapper(
+                            ClipboardTools.GetBuyPrice(_buy, Settings));
 
 
-                                                     var img = new BitmapImage();
-                                                     img.BeginInit();
-                                                     img.UriSource = (isSell && _sell > 0) || (!isSell && _buy > 0)
-                                                                         ? new Uri(
-                                                                               "pack://application:,,,/Elinor;component/Images/38_16_193.png")
-                                                                         : new Uri(
-                                                                               "pack://application:,,,/Elinor;component/Images/38_16_194.png");
-                                                     img.EndInit();
-                                                     imgCopyStatus.Source = img;
-                                                 }
-                                             }));
+                    var img = new BitmapImage();
+                    img.BeginInit();
+                    img.UriSource = (isSell && _sell > 0) || (!isSell && _buy > 0)
+                        ? new Uri(
+                            "pack://application:,,,/Elinor;component/Images/38_16_193.png")
+                        : new Uri(
+                            "pack://application:,,,/Elinor;component/Images/38_16_194.png");
+                    img.EndInit();
+                    imgCopyStatus.Source = img;
+                }
+            }));
             UpdateStatus();
         }
-        
+
         private void UpdateStatus()
         {
             long size = _logdir.GetFiles().Sum(fi => fi.Length);
@@ -281,23 +274,23 @@ namespace Elinor
         private void BtnStayOnTopClick(object sender, RoutedEventArgs e)
         {
             Dispatcher.Invoke(new Action(delegate
-                                             {
-                                                 if (btnStayOnTop.IsChecked != null)
-                                                     Topmost = (bool) btnStayOnTop.IsChecked;
-                                             }));
+            {
+                if (btnStayOnTop.IsChecked != null)
+                    Topmost = (bool) btnStayOnTop.IsChecked;
+            }));
         }
 
         private void WindowClosed(object sender, EventArgs e)
         {
             Properties.Settings.Default.pin = btnStayOnTop.IsChecked != null && (bool) btnStayOnTop.IsChecked;
 
-            if (cbAutoCopy.IsChecked == null || !(bool)cbAutoCopy.IsChecked)
+            if (cbAutoCopy.IsChecked == null || !(bool) cbAutoCopy.IsChecked)
                 Properties.Settings.Default.autocopy = 0;
-            else if (rbSell.IsChecked != null && (bool)rbSell.IsChecked)
+            else if (rbSell.IsChecked != null && (bool) rbSell.IsChecked)
                 Properties.Settings.Default.autocopy = 1;
-            else if(rbBuy.IsChecked != null && (bool) rbBuy.IsChecked)
+            else if (rbBuy.IsChecked != null && (bool) rbBuy.IsChecked)
                 Properties.Settings.Default.autocopy = -1;
-            
+
             Properties.Settings.Default.Save();
             Settings.SaveSettings(Settings);
         }
@@ -310,41 +303,41 @@ namespace Elinor
         private void TiSettingsGotFocus(object sender, RoutedEventArgs e)
         {
             Dispatcher.Invoke(new Action(delegate
-                                             {
-                                                 slMargin.Value = Settings.MarginThreshold;
-                                                 slMinimum.Value = Settings.MinimumThreshold;
+            {
+                slMargin.Value = Settings.MarginThreshold;
+                slMinimum.Value = Settings.MinimumThreshold;
 
-                                                 tbCorpStanding.Text =
-                                                     string.Format(CultureInfo.InvariantCulture, "{0:n2}",
-                                                                   Settings.CorpStanding);
-                                                 tbFactionStanding.Text =
-                                                     string.Format(CultureInfo.InvariantCulture, "{0:n2}",
-                                                                   Settings.FactionStanding);
+                tbCorpStanding.Text =
+                    string.Format(CultureInfo.InvariantCulture, "{0:n2}",
+                        Settings.CorpStanding);
+                tbFactionStanding.Text =
+                    string.Format(CultureInfo.InvariantCulture, "{0:n2}",
+                        Settings.FactionStanding);
 
-                                                 cbBrokerRelations.SelectedIndex = Settings.BrokerRelations;
-                                                 cbAccounting.SelectedIndex = Settings.Accounting;
+                cbBrokerRelations.SelectedIndex = Settings.BrokerRelations;
+                cbAccounting.SelectedIndex = Settings.Accounting;
 
-                                                 cbAdvancedSettings.IsChecked = Settings.AdvancedStepSettings;
-                                                 tbSellFract.Text =
-                                                     (Settings.SellPercentage*100).ToString(CultureInfo.InvariantCulture);
-                                                 tbBuyFract.Text =
-                                                     (Settings.BuyPercentage*100).ToString(CultureInfo.InvariantCulture);
-                                                 tbSellThresh.Text =
-                                                     Settings.SellThreshold.ToString(CultureInfo.InvariantCulture);
-                                                 tbBuyThresh.Text =
-                                                     Settings.BuyThreshold.ToString(CultureInfo.InvariantCulture);
-                                             }));
+                cbAdvancedSettings.IsChecked = Settings.AdvancedStepSettings;
+                tbSellFract.Text =
+                    (Settings.SellPercentage*100).ToString(CultureInfo.InvariantCulture);
+                tbBuyFract.Text =
+                    (Settings.BuyPercentage*100).ToString(CultureInfo.InvariantCulture);
+                tbSellThresh.Text =
+                    Settings.SellThreshold.ToString(CultureInfo.InvariantCulture);
+                tbBuyThresh.Text =
+                    Settings.BuyThreshold.ToString(CultureInfo.InvariantCulture);
+            }));
         }
 
         private void SlMarginValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             Settings.MarginThreshold = slMargin.Value;
             Dispatcher.Invoke(new Action(delegate
-                                             {
-                                                 slMinimum.Maximum = slMargin.Value;
-                                                 tbPreferred.Text =
-                                                     (slMargin.Value*100).ToString(CultureInfo.InvariantCulture);
-                                             }));
+            {
+                slMinimum.Maximum = slMargin.Value;
+                tbPreferred.Text =
+                    (slMargin.Value*100).ToString(CultureInfo.InvariantCulture);
+            }));
         }
 
         private void SlMinimumValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -422,7 +415,7 @@ namespace Elinor
             ppFactionStanding.PlacementTarget = tbFactionStanding;
             ppCorpStanding.PlacementTarget = tbCorpStanding;
         }
-        
+
         private void UpdateProfiles()
         {
             foreach (FileInfo file in _profdir.GetFiles())
@@ -452,18 +445,18 @@ namespace Elinor
         private void UpdateBrokerFee()
         {
             Dispatcher.Invoke(new Action(delegate
-                                             {
-                                                 lblBrokerRelations.Content = String.Format("Broker fee: {0:n}%",
-                                                                                            CalculateDataThread.
-                                                                                                BrokerFee(
-                                                                                                    Settings.
-                                                                                                        BrokerRelations,
-                                                                                                    Settings.
-                                                                                                        CorpStanding,
-                                                                                                    Settings.
-                                                                                                        FactionStanding)*
-                                                                                            100);
-                                             }));
+            {
+                lblBrokerRelations.Content = String.Format("Broker fee: {0:n}%",
+                    CalculateDataThread.
+                        BrokerFee(
+                            Settings.
+                                BrokerRelations,
+                            Settings.
+                                CorpStanding,
+                            Settings.
+                                FactionStanding)*
+                    100);
+            }));
         }
 
         private void CbAccountingSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -472,10 +465,10 @@ namespace Elinor
             Dispatcher.Invoke(
                 new Action(
                     delegate
-                        {
-                            lblSalesTax.Content = String.Format("Sales tax: {0:n}%",
-                                                                CalculateDataThread.SalesTax(Settings.Accounting)*100);
-                        }));
+                    {
+                        lblSalesTax.Content = String.Format("Sales tax: {0:n}%",
+                            CalculateDataThread.SalesTax(Settings.Accounting)*100);
+                    }));
         }
 
         private void CbProfilesSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -491,11 +484,11 @@ namespace Elinor
         {
             var settings = new Settings();
             var pnw = new ProfileNameWindow
-                          {
-                              Top = Top + Height/10,
-                              Left = Left + Width/10,
-                              Topmost = Topmost,
-                          };
+            {
+                Top = Top + Height/10,
+                Left = Left + Width/10,
+                Topmost = Topmost,
+            };
             if (pnw.ShowDialog() == true)
             {
                 settings.ProfileName = pnw.ProfileName;
@@ -509,11 +502,11 @@ namespace Elinor
         private void BtnImportClick(object sender, RoutedEventArgs e)
         {
             var aiw = new ApiImportWindow
-                          {
-                              Topmost = true,
-                              Top = Top + Height/10,
-                              Left = Left + Width/10,
-                          };
+            {
+                Topmost = true,
+                Top = Top + Height/10,
+                Left = Left + Width/10,
+            };
 
             if (aiw.ShowDialog() == true)
             {
@@ -522,8 +515,8 @@ namespace Elinor
                 if (File.Exists(fName))
                 {
                     MessageBoxResult result = MessageBox.Show("Character exists. Update?",
-                                                              "Character already exists", MessageBoxButton.YesNo,
-                                                              MessageBoxImage.Information);
+                        "Character already exists", MessageBoxButton.YesNo,
+                        MessageBoxImage.Information);
                     if (result == MessageBoxResult.Yes)
                     {
                         int index = 1;
@@ -566,11 +559,11 @@ namespace Elinor
         private void BtnAboutClick(object sender, RoutedEventArgs e)
         {
             var abt = new AboutWindow
-                          {
-                              Topmost = Topmost,
-                              Top = Top + Height/10,
-                              Left = Left + Width/10
-                          };
+            {
+                Topmost = Topmost,
+                Top = Top + Height/10,
+                Left = Left + Width/10
+            };
             abt.ShowDialog();
         }
 
@@ -620,8 +613,8 @@ namespace Elinor
         private void RbChecked(object sender, RoutedEventArgs e)
         {
             double price = rbSell.IsChecked != null && (bool) rbSell.IsChecked
-                               ? ClipboardTools.GetSellPrice(_sell, Settings)
-                               : ClipboardTools.GetBuyPrice(_buy, Settings);
+                ? ClipboardTools.GetSellPrice(_sell, Settings)
+                : ClipboardTools.GetBuyPrice(_buy, Settings);
             ClipboardTools.SetClipboardWrapper(price);
         }
 
@@ -633,7 +626,7 @@ namespace Elinor
         private void CbAdvancedSettingsChecked(object sender, RoutedEventArgs e)
         {
             if (MessageBox.Show("This is a barely tested feature.\nPlease use with caution and report any bugs.",
-                                "Experimental feature", MessageBoxButton.OKCancel, MessageBoxImage.Warning) ==
+                "Experimental feature", MessageBoxButton.OKCancel, MessageBoxImage.Warning) ==
                 MessageBoxResult.OK)
             {
                 Settings.AdvancedStepSettings = true;
@@ -776,10 +769,10 @@ namespace Elinor
                 var clearCache = new BackgroundWorker();
                 clearCache.DoWork += (o, args) => CacheTools.ClearApiCache();
                 clearCache.RunWorkerCompleted += (o, args) =>
-                                                     {
-                                                         _cacheCleared = true;
-                                                         if (_closePending) Close();
-                                                     };
+                {
+                    _cacheCleared = true;
+                    if (_closePending) Close();
+                };
                 clearCache.RunWorkerAsync();
             }
         }
@@ -788,7 +781,7 @@ namespace Elinor
         {
             Properties.Settings.Default.checkforupdates = btnUpdate.IsChecked != null && (bool) btnUpdate.IsChecked;
             Properties.Settings.Default.Save();
-            if(Properties.Settings.Default.checkforupdates) Updates.CheckForUpdates();
+            if (Properties.Settings.Default.checkforupdates) Updates.CheckForUpdates();
         }
     }
 }

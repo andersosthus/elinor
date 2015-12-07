@@ -32,25 +32,25 @@ namespace Elinor
             if (_sellPrice < 0 || _buyPrice < 0)
             {
                 _main.Dispatcher.Invoke(new Action(delegate
-                                                       {
-                                                           _main.lblRevenue.Content = "- ISK";
-                                                           _main.lblCoS.Content = "- ISK";
-                                                           _main.lblProfit.Content = "- ISK";
-                                                           _main.lblMargin.Content = "- %";
-                                                           _main.lblMarkup.Content = "- %";
+                {
+                    _main.lblRevenue.Content = "- ISK";
+                    _main.lblCoS.Content = "- ISK";
+                    _main.lblProfit.Content = "- ISK";
+                    _main.lblMargin.Content = "- %";
+                    _main.lblMarkup.Content = "- %";
 
-                                                           _main.dgSamples.DataContext = null;
-                                                           _main.dgSamplesFive.DataContext = null;
+                    _main.dgSamples.DataContext = null;
+                    _main.dgSamplesFive.DataContext = null;
 
-                                                           _main.brdImportant.BorderBrush =
-                                                               new SolidColorBrush(Colors.LightGray);
-                                                           _main.lblMargin.Foreground = new SolidColorBrush(Colors.Black);
-                                                       }));
+                    _main.brdImportant.BorderBrush =
+                        new SolidColorBrush(Colors.LightGray);
+                    _main.lblMargin.Foreground = new SolidColorBrush(Colors.Black);
+                }));
             }
             else
             {
                 double brokerFee = BrokerFee(_main.Settings.BrokerRelations, _main.Settings.CorpStanding,
-                                             _main.Settings.FactionStanding);
+                    _main.Settings.FactionStanding);
                 double salesTax = SalesTax(_main.Settings.Accounting);
 
 
@@ -69,57 +69,57 @@ namespace Elinor
                 for (int i = 1; i < 100000000; i *= 10)
                 {
                     samples.Rows.Add(String.Format("{0:n0}", i), String.Format("{0:n}m", i*cos/1000000),
-                                     String.Format("{0:n}m", i*(revenue - cos)/1000000));
+                        String.Format("{0:n}m", i*(revenue - cos)/1000000));
                     samplesF.Rows.Add(String.Format("{0:n0}", i*5), String.Format("{0:n}m", i*cos*5/1000000),
-                                      String.Format("{0:n}m", i*5*(revenue - cos)/1000000));
+                        String.Format("{0:n}m", i*5*(revenue - cos)/1000000));
                 }
                 _main.Dispatcher.Invoke(new Action(delegate
-                                                       {
-                                                           _main.lblRevenue.Content = String.Format("{0:n} ISK", revenue);
-                                                           _main.lblCoS.Content = String.Format("{0:n} ISK", cos);
-                                                           _main.lblProfit.Content = String.Format("{0:n} ISK",
-                                                                                                   revenue - cos);
+                {
+                    _main.lblRevenue.Content = String.Format("{0:n} ISK", revenue);
+                    _main.lblCoS.Content = String.Format("{0:n} ISK", cos);
+                    _main.lblProfit.Content = String.Format("{0:n} ISK",
+                        revenue - cos);
 
-                                                           double margin = 100*(revenue - cos)/revenue;
-                                                           _main.lblMargin.Content = Math.Abs(margin) < 10000
-                                                                                         ? String.Format("{0:n}%",
-                                                                                                         margin)
-                                                                                         : (margin > 0 ? "∞%" : "-∞%");
+                    double margin = 100*(revenue - cos)/revenue;
+                    _main.lblMargin.Content = Math.Abs(margin) < 10000
+                        ? String.Format("{0:n}%",
+                            margin)
+                        : (margin > 0 ? "∞%" : "-∞%");
 
-                                                           double markup = 100*(revenue - cos)/cos;
-                                                           _main.lblMarkup.Content = Math.Abs(markup) < 10000
-                                                                                         ? String.Format("{0:n}%",
-                                                                                                         markup)
-                                                                                         : (markup > 0 ? "∞%" : "-∞%");
+                    double markup = 100*(revenue - cos)/cos;
+                    _main.lblMarkup.Content = Math.Abs(markup) < 10000
+                        ? String.Format("{0:n}%",
+                            markup)
+                        : (markup > 0 ? "∞%" : "-∞%");
 
-                                                           if (margin/100 >= _main.Settings.MarginThreshold)
-                                                           {
-                                                               _main.lblMargin.Foreground =
-                                                                   new SolidColorBrush(Colors.ForestGreen);
-                                                               _main.brdImportant.BorderBrush =
-                                                                   new LinearGradientBrush(Colors.LimeGreen,
-                                                                                           Colors.ForestGreen, 45.0);
-                                                           }
-                                                           else if (margin/100 > _main.Settings.MinimumThreshold)
-                                                           {
-                                                               _main.lblMargin.Foreground =
-                                                                   new SolidColorBrush(Colors.Orange);
-                                                               _main.brdImportant.BorderBrush =
-                                                                   new LinearGradientBrush(Colors.Yellow, Colors.Orange,
-                                                                                           45.0);
-                                                           }
-                                                           else
-                                                           {
-                                                               _main.lblMargin.Foreground =
-                                                                   new SolidColorBrush(Colors.Red);
-                                                               _main.brdImportant.BorderBrush =
-                                                                   new LinearGradientBrush(Colors.OrangeRed, Colors.Red,
-                                                                                           45.0);
-                                                           }
+                    if (margin/100 >= _main.Settings.MarginThreshold)
+                    {
+                        _main.lblMargin.Foreground =
+                            new SolidColorBrush(Colors.ForestGreen);
+                        _main.brdImportant.BorderBrush =
+                            new LinearGradientBrush(Colors.LimeGreen,
+                                Colors.ForestGreen, 45.0);
+                    }
+                    else if (margin/100 > _main.Settings.MinimumThreshold)
+                    {
+                        _main.lblMargin.Foreground =
+                            new SolidColorBrush(Colors.Orange);
+                        _main.brdImportant.BorderBrush =
+                            new LinearGradientBrush(Colors.Yellow, Colors.Orange,
+                                45.0);
+                    }
+                    else
+                    {
+                        _main.lblMargin.Foreground =
+                            new SolidColorBrush(Colors.Red);
+                        _main.brdImportant.BorderBrush =
+                            new LinearGradientBrush(Colors.OrangeRed, Colors.Red,
+                                45.0);
+                    }
 
-                                                           _main.dgSamples.ItemsSource = samples.AsDataView();
-                                                           _main.dgSamplesFive.ItemsSource = samplesF.AsDataView();
-                                                       }));
+                    _main.dgSamples.ItemsSource = samples.AsDataView();
+                    _main.dgSamplesFive.ItemsSource = samplesF.AsDataView();
+                }));
             }
         }
     }

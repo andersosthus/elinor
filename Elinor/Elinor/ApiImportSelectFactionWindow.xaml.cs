@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using eZet.EveLib.EveXmlModule;
 
@@ -30,7 +29,7 @@ namespace Elinor
 
             var character = EveXml.CreateCharacter(_chara.KeyId, _chara.VCode, _chara.CharId);
             var standings = character.GetStandings().Result;
-            
+
             foreach (var standing in standings.CharacterStandings.Corporations)
             {
                 var wrap = new StandingWrapper(standing.FromName, standing.Standing);

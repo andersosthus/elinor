@@ -13,8 +13,8 @@ namespace Elinor
             var result = new Dictionary<string, long>();
 
             var inrange = from List<string> row in table
-                                                where row[13] == "0"
-                                                select row;
+                where row[13] == "0"
+                select row;
 
             foreach (var v in inrange)
             {

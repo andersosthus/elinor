@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Net;
 using System.Reflection;
-using System.Windows;
 using System.Windows.Forms;
 using System.Xml;
-using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace Elinor
 {
-    class Updates
+    internal class Updates
     {
         public static void CheckForUpdates()
         {
@@ -59,7 +56,8 @@ namespace Elinor
                         if (newVersion > currentVersion)
                         {
                             if (DialogResult.Yes ==
-                                MessageBox.Show("There's a new version of Elinor available, do you want to download it?",
+                                MessageBox.Show(
+                                    "There's a new version of Elinor available, do you want to download it?",
                                     "New version available",
                                     MessageBoxButtons.YesNo,
                                     MessageBoxIcon.Question))
