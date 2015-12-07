@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
-using EVE.Net.Character;
+using eZet.EveLib.EveXmlModule;
 
 namespace Elinor
 {
@@ -28,19 +28,18 @@ namespace Elinor
             cbCorp.SelectedIndex = 0;
             cbFaction.SelectedIndex = 0;
 
-            var standings = new NPCStandings(_chara.KeyId, _chara.VCode,
-                                             _chara.CharId.ToString(CultureInfo.InvariantCulture));
-            standings.Query();
-
-            foreach (NPCStandings.Standing standing in standings.standings.NPCCorporations)
+            var character = EveXml.CreateCharacter(_chara.KeyId, _chara.VCode, _chara.CharId);
+            var standings = character.GetStandings().Result;
+            
+            foreach (var standing in standings.CharacterStandings.Corporations)
             {
-                var wrap = new StandingWrapper(standing.fromName, standing.standing);
+                var wrap = new StandingWrapper(standing.FromName, standing.Standing);
                 cbCorp.Items.Add(wrap);
             }
 
-            foreach (NPCStandings.Standing standing in standings.standings.factions)
+            foreach (var standing in standings.CharacterStandings.Factions)
             {
-                var wrap = new StandingWrapper(standing.fromName, standing.standing);
+                var wrap = new StandingWrapper(standing.FromName, standing.Standing);
                 cbFaction.Items.Add(wrap);
             }
 

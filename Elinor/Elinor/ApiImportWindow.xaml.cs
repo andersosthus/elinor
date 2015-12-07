@@ -1,10 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Globalization;
 using System.Windows;
-using EVE.Net;
-using EVE.Net.Character;
+using eZet.EveLib.Core;
+using eZet.EveLib.Core.Cache;
+using eZet.EveLib.EveXmlModule;
 
 namespace Elinor
 {
@@ -28,13 +28,21 @@ namespace Elinor
             cbChars.Items.Clear();
             try
             {
-                string keyid = tbKeyId.Text;
-                string vcode = tbVCode.Text;
+                var keyIdString = tbKeyId.Text;
+                var vcode = tbVCode.Text;
+                int keyId;
 
-                var info = new APIKeyInfo(keyid.ToString(CultureInfo.InvariantCulture), vcode);
-                info.Query();
+                if (!int.TryParse(keyIdString, out keyId))
+                    return;
 
-                if (info.characters.Count == 0)
+                var api = EveXml.CreateApiKey(keyId, vcode);
+                api.Init();
+                var characters = api.GetCharacterList();
+                
+                //var info = new APIKeyInfo(keyid.ToString(CultureInfo.InvariantCulture), vcode);
+                //info.Query();
+
+                if (characters.Result.Characters.Count == 0)
                 {
                     MessageBox.Show("No characters for this API information.\nPlease check you API information",
                                     "No characters found", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -44,14 +52,14 @@ namespace Elinor
                     lblChar.Visibility = Visibility.Visible;
                     cbChars.Visibility = Visibility.Visible;
 
-                    foreach (APIKeyInfo.Character chr in info.characters)
+                    foreach (var chr in characters.Result.Characters)
                     {
                         var chara = new CharWrapper
                                         {
-                                            KeyId = keyid,
+                                            KeyId = keyId,
                                             VCode = vcode,
-                                            Charname = chr.characterName,
-                                            CharId = chr.characterID
+                                            Charname = chr.CharacterName,
+                                            CharId = chr.CharacterId
                                         };
 
                         cbChars.Items.Add(chara);
@@ -94,17 +102,18 @@ namespace Elinor
                                                  else Dispatcher.Invoke(new Action(Close));
                                              };
             worker.DoWork += delegate
-                                 {
-                                     var sheet = new CharacterSheet(chara.KeyId, chara.VCode,
-                                                                    chara.CharId.ToString(CultureInfo.InvariantCulture));
-                                     sheet.Query();
+            {
 
-                                     foreach (CharacterSheet.Skill skill in sheet.skills)
+                var character = EveXml.CreateCharacter(chara.KeyId, chara.VCode, chara.CharId).Init();
+                var charSheet = character.GetCharacterSheet().Result;
+                
+                                     
+                                     foreach (var skill in charSheet.Skills)
                                      {
-                                         if (skill.typeID == 3446) //"Broker Relations"
-                                             Settings.BrokerRelations = skill.level;
-                                         if (skill.typeID == 16622) //"Accounting" 
-                                             Settings.Accounting = skill.level;
+                                         if (skill.TypeId == 3446) //"Broker Relations"
+                                             Settings.BrokerRelations = skill.Level;
+                                         if (skill.TypeId == 16622) //"Accounting" 
+                                             Settings.Accounting = skill.Level;
                                      }
 
                                      Dispatcher.Invoke(new Action(delegate

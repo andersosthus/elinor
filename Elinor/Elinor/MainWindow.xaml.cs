@@ -10,7 +10,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using EVE.Net;
+using eZet.EveLib.Core.Cache;
+using eZet.EveLib.EveXmlModule;
+using eZet.EveLib.EveXmlModule.Models.Misc;
 
 namespace Elinor
 {
@@ -33,11 +35,12 @@ namespace Elinor
         private FileSystemEventArgs _lastEvent;
 
         private double _sell;
-        private int _typeId;
+        private long _typeId;
 
         public MainWindow()
         {
             InitializeComponent();
+
             if (_logdir.Parent != null && !_logdir.Parent.Exists)
             {
                 if (Properties.Settings.Default.logpath != "")
@@ -72,6 +75,7 @@ namespace Elinor
             }
         }
         
+
         private void SetWatcherAndStuff()
         {
             if (!_logdir.Exists)
@@ -81,9 +85,8 @@ namespace Elinor
 
             var init = new BackgroundWorker();
             init.DoWork += (sender, args) =>
-                               {
-                                   var stat = new ServerStatus();
-                                   stat.Query();
+            {
+                var status = EveXml.Eve.GetServerStatus().Result;
                                };
             init.RunWorkerAsync();
 
@@ -125,25 +128,24 @@ namespace Elinor
 
             foreach (var list in aRow)
             {
-                int i;
-                _typeId = int.TryParse(list[2], out i) ? i : -1;
+                long i;
+                _typeId = long.TryParse(list[2], out i) ? i : -1;
                 break;
             }
 
             var setItemName = new BackgroundWorker();
             setItemName.DoWork += (sender, args) =>
-                                      {
-                                          var prod = new TypeName(new[] {_typeId.ToString(CultureInfo.InvariantCulture)});
-                                          prod.Query();
+            {
+                var item = EveXml.Eve.GetTypeName(_typeId).Result;
 
                                           Dispatcher.Invoke(new Action(delegate
                                                                            {
-                                                                               if (prod.types.Count > 0)
+                                                                               if (item.Types.Count > 0)
                                                                                {
-                                                                                   TypeName.GameType type =
-                                                                                       prod.types[0];
-                                                                                   lblItemName.Content = type.typeName;
-                                                                                   lblItemName.ToolTip = type.typeName;
+                                                                                   var type =
+                                                                                       item.Types[0];
+                                                                                   lblItemName.Content = type.TypeName;
+                                                                                   lblItemName.ToolTip = type.TypeName;
                                                                                }
                                                                                else
                                                                                {
